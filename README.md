@@ -2,6 +2,8 @@
 
 ## Drone Design
 
+<img src="media/plane-render.png" alt="Rendering of Drone" width="400" height="240">
+
 ### Main Wing Body
 
 - `b` = 2.5ft = .762m
@@ -13,6 +15,10 @@
 <img src="plots/Cl_vs_Alpha.png" alt="Cl vs Alpha" width="400" height="240">
 
 <img src="plots/Cd_vs_Alpha.png" alt="Cd vs Alpha" width="400" height="240">
+
+**Wing Body L/D vs Trim Alpha at 10m/s**
+
+<img src="plots/L_D_vs_TrimAlpha_10ms.png" alt="L/D for 10m/s vs trim alpha" width="400" height="240">
 
 ## Dev Env Activation
 
