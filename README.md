@@ -4,22 +4,33 @@
 
 <img src="media/plane-render.png" alt="Rendering of Drone" width="400" height="240">
 
-### Main Wing Body
+### Wing Body/Tail Design
 
-- `b` = 2.5ft = .762m
+- `b_w` = 2.5ft = .762m
 - `c_bar` = 4in = .1016m
-- `S` = .0774 m^2
+- `S_w` = .0774 m^2
 
 **Airfoil**: NACA 4412 - plots at Re = 1e6
 
 <p style="margin: 0;">
   <img src="plots/Cl_vs_Alpha.png" alt="Cl vs Alpha" width="400" height="240">
   <img src="plots/Cd_vs_Alpha.png" alt="Cd vs Alpha" width="400" height="240">
+  <img src="plots/L_D_w_vs_TrimAlpha_10ms.png" alt="L/D for 10m/s vs trim alpha" width="400" height="240">
 </p>
 
-**Wing Body L/D vs Trim Alpha at 10m/s**
+**Wing Body Plots**
 
-<img src="plots/L_D_vs_TrimAlpha_10ms.png" alt="L/D for 10m/s vs trim alpha" width="400" height="240">
+<p style="margin: 0">
+  <img src="plots/lift_w_vs_Velocity_5deg.png" alt="Wing lift vs Velocity at 5deg trim" width="400" height="240">
+  <img src="plots/drag_w_vs_Velocity_5deg.png" alt="Drag lift vs Velocity at 5deg trim" width="400" height="240">
+</p>
+
+**Tail Plots**
+
+<p style="margin: 0">
+  <img src="plots/lift_t_vs_Velocity_5deg.png" alt="Wing lift vs Velocity at 5deg trim" width="400" height="240">
+  <img src="plots/drag_t_vs_Velocity_5deg.png" alt="Drag lift vs Velocity at 5deg trim" width="400" height="240">
+</p>
 
 
 ### 3d Printing and Design
