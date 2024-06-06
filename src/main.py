@@ -18,7 +18,6 @@ AR_w = b_w**2 / S_w  # Aspect ratio
 b_t = 0.303  # Wing span (m) UP FOR VARIATION
 S_t = b_t * c  # Wing area (m^2)
 AR_t = b_t**2 / S_t  # Aspect ratio
-i_t = 0  # Incidence angle of the tail (degrees)
 
 W_est = 7 # Estimated weight of the aircraft (N)
 
@@ -33,8 +32,10 @@ alpha = np.array(data['Alpha'])
 #######################################################################################################
 
 # for 1 to 40 m/s
-velocity = np.arange(1, 41, 1)
+velocity = np.arange(1, 45, 1)
 trim_alpha = np.arange(-5, 6, .25)
+# print(trim_alpha)
+# print(np.where(trim_alpha == 5)[0])
 lift_w_arr = []
 drag_w_arr = []
 L_D_w_arr = []
@@ -43,7 +44,6 @@ L_D_w_arr = []
 for a in trim_alpha:
   lift_w_values = []
   drag_w_values = []
-  L_D_w_values = []
   if a in alpha:
     index_a = np.where(alpha == a)[0][0]
     for v in velocity:
@@ -53,21 +53,22 @@ for a in trim_alpha:
       # Append lift_w and drag_w values to the respective lists
       lift_w_values.append(lift_w)
       drag_w_values.append(drag_w)
-      L_D_w_values.append(lift_w / drag_w)
+      L_D_w_value = (lift_w / drag_w)
   else:
     # If the angle of attack is not in alpha, append zeros or handle appropriately
     lift_w_values = [0] * len(velocity)
     drag_w_values = [0] * len(velocity)
-    L_D_w_values = [0] * len(velocity)
+    L_D_w_value = 0
   # Append the list of lift_w and drag_w values for this trim_alpha to the main lists
   lift_w_arr.append(lift_w_values)
   drag_w_arr.append(drag_w_values)
-  L_D_w_arr.append(L_D_w_values)
+  L_D_w_arr.append(L_D_w_value)
 
 # Convert lists to numpy arrays for easier manipulation and analysis
 lift_w_arr = np.array(lift_w_arr)
 drag_w_arr = np.array(drag_w_arr)
 L_D_w_arr = np.array(L_D_w_arr)
+
 
 #######################################################################################################
 ######################################### Tail Calculations ###########################################
@@ -81,7 +82,6 @@ L_D_t_arr = []
 for a in trim_alpha:
   lift_t_values = []
   drag_t_values = []
-  L_D_t_values = []
   if a in alpha:
     index_a = np.where(alpha == a)[0][0]
     for v in velocity:
@@ -91,21 +91,41 @@ for a in trim_alpha:
       # Append lift_w and drag_w values to the respective lists
       lift_t_values.append(lift_t)
       drag_t_values.append(drag_t)
-      L_D_t_values.append(lift_t / drag_t)
+      L_D_t_value = (lift_t / drag_t)
   else:
     # If the angle of attack is not in alpha, append zeros or handle appropriately
     lift_t_values = [0] * len(velocity)
     drag_t_values = [0] * len(velocity)
-    L_D_t_values = [0] * len(velocity)
+    L_D_t_value = 0
   # Append the list of lift_w and drag_w values for this trim_alpha to the main lists
   lift_t_arr.append(lift_t_values)
   drag_t_arr.append(drag_t_values)
-  L_D_t_arr.append(L_D_t_values)
+  L_D_t_arr.append(L_D_t_value)
 
 # Convert lists to numpy arrays for easier manipulation and analysis
 lift_t_arr = np.array(lift_t_arr)
 drag_t_arr = np.array(drag_t_arr)
 L_D_t_arr = np.array(L_D_t_arr)
+
+
+#######################################################################################################
+###################################### Stability Calculations #########################################
+#######################################################################################################
+
+## Constants
+
+# lw ==> distance from cg to wing aerodynamic center
+# lt ==> distance from cg to tail aerodynamic center
+lw = np.arange(0.05, 0.3,48)  #  2in to 1ft => UP FOR VARIATION
+lt = np.arange(0.3, 1.22, 48)  # 1ft to 4ft => UP FOR VARIATION
+i_t = 0  # Incidence angle of the tail (degrees) => UP FOR VARIATION
+trim_alpha_w = 5  # Trim angle of attack for the wing (degrees)
+trim_alpha_t = 5 - i_t  # Trim angle of attack for the tail (degrees)
+
+# Calculations
+
+# for each lw, lt, calculate the i_t required for stability, at 20 m/s
+
 
 #######################################################################################################
 ########################################## Plotting Data ##############################################
@@ -137,7 +157,7 @@ plt.close()
 
 ###### MAIN WING DATA ######
 
-# Plot L/D vs trim alpha for 10 m/s
+# Plot L/D vs trim alpha for 20 m/s
 plt.figure(figsize=(10, 6))
 plt.plot(trim_alpha, L_D_w_arr, marker='o', linestyle='-', color='g')
 plt.title('lift_w-to-drag_w Ratio (L/D) vs Trim Angle of Attack for 10 m/s')
@@ -149,7 +169,7 @@ plt.close()
 
 # Plot lift_w vs velocity for trim alpha = 5 degrees
 plt.figure(figsize=(10, 6))
-plt.plot(velocity, lift_w_arr[20], marker='o', linestyle='-', color='b')
+plt.plot(velocity, lift_w_arr[np.where(trim_alpha == 5)[0][0]], marker='o', linestyle='-', color='b')
 plt.plot(velocity, [W_est]*len(velocity), marker='o', linestyle='-', color='r', label='Weight Estimate')
 plt.title('lift_w vs Velocity for Trim Alpha = 5 degrees')
 plt.xlabel('Velocity (m/s)')
@@ -161,7 +181,7 @@ plt.close()
 
 # Plot drag_w vs velocity for trim alpha = 5 degrees
 plt.figure(figsize=(10, 6))
-plt.plot(velocity, drag_w_arr[20], marker='o', linestyle='-', color='b')
+plt.plot(velocity, drag_w_arr[np.where(trim_alpha == 5)[0][0]], marker='o', linestyle='-', color='b')
 plt.title('drag_w vs Velocity for Trim Alpha = 5 degrees')
 plt.xlabel('Velocity (m/s)')
 plt.ylabel('drag_w (N)')
@@ -171,7 +191,7 @@ plt.close()
 
 ###### TAIL DATA ######
 
-# Plot L/D vs trim alpha for 10 m/s
+# Plot L/D vs trim alpha for 20 m/s
 plt.figure(figsize=(10, 6))
 plt.plot(trim_alpha, L_D_t_arr, marker='o', linestyle='-', color='g')
 plt.title('lift_t-to-drag_t Ratio (L/D) vs Trim Angle of Attack for 10 m/s')
@@ -183,7 +203,7 @@ plt.close()
 
 # Plot lift_t vs velocity for trim alpha = 5 degrees
 plt.figure(figsize=(10, 6))
-plt.plot(velocity, lift_t_arr[20], marker='o', linestyle='-', color='b')
+plt.plot(velocity, lift_t_arr[np.where(trim_alpha == 5)[0][0]], marker='o', linestyle='-', color='b')
 plt.title('lift_t vs Velocity for Trim Alpha = 5 degrees')
 plt.xlabel('Velocity (m/s)')
 plt.ylabel('lift_t (N)')
@@ -193,7 +213,7 @@ plt.close()
 
 # Plot drag_t vs velocity for trim alpha = 5 degrees
 plt.figure(figsize=(10, 6))
-plt.plot(velocity, drag_t_arr[20], marker='o', linestyle='-', color='b')
+plt.plot(velocity, drag_t_arr[np.where(trim_alpha == 5)[0][0]], marker='o', linestyle='-', color='b')
 plt.title('drag_t vs Velocity for Trim Alpha = 5 degrees')
 plt.xlabel('Velocity (m/s)')
 plt.ylabel('drag_t (N)')
