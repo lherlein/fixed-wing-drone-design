@@ -12,13 +12,22 @@
 
 **Airfoil**: NACA 4412 - plots at Re = 1e6
 
-<img src="plots/Cl_vs_Alpha.png" alt="Cl vs Alpha" width="400" height="240">
-
-<img src="plots/Cd_vs_Alpha.png" alt="Cd vs Alpha" width="400" height="240">
+<p style="margin: 0;">
+  <img src="plots/Cl_vs_Alpha.png" alt="Cl vs Alpha" width="400" height="240">
+  <img src="plots/Cd_vs_Alpha.png" alt="Cd vs Alpha" width="400" height="240">
+</p>
 
 **Wing Body L/D vs Trim Alpha at 10m/s**
 
 <img src="plots/L_D_vs_TrimAlpha_10ms.png" alt="L/D for 10m/s vs trim alpha" width="400" height="240">
+
+
+### 3d Printing and Design
+
+<p style="margin: 0;">
+  <img src="media/wing-block-ss.png" alt="wing-block" width="300" height="100">
+  <img src="media/wing-body-connector-ss.png" alt="wing-body-connector" width="300" height="400">
+</p>
 
 ## Dev Env Activation
 

@@ -14,15 +14,21 @@ c = 0.1016  # Chord length (m)
 S = b * c  # Wing area (m^2)
 AR = b**2 / S  # Aspect ratio
 
+W_est = 7 # Estimated weight of the aircraft (N)
+
 cl = np.array(data['Cl'])
 cd = np.array(data['Cd'])
 alpha = np.array(data['Alpha'])
 
 ## Calculations 
 
+#######################################################################################################
+################################# Main Wing Body Calculations #########################################
+#######################################################################################################
+
 # for 1 to 20 m/s
-velocity = np.arange(1, 21, 1)
-trim_alpha = np.arange(-5, 6, .5)
+velocity = np.arange(1, 41, 1)
+trim_alpha = np.arange(-5, 6, .25)
 lift_arr = []
 drag_arr = []
 L_D_arr = []
@@ -79,7 +85,7 @@ plt.figure(figsize=(10, 6))
 plt.plot(alpha, cd, marker='o', linestyle='-', color='r', label='Cd')
 plt.title('Drag Coefficient (Cd) vs Angle of Attack (Alpha)')
 plt.xlabel('Alpha (degrees)')
-plt.ylabel('Cd')
+plt.ylabel('Cd') 
 plt.grid(True)
 plt.legend()
 plt.savefig('plots/Cd_vs_Alpha.png')
@@ -93,4 +99,26 @@ plt.xlabel('Trim Alpha (degrees)')
 plt.ylabel('L/D')
 plt.grid(True)
 plt.savefig('plots/L_D_vs_TrimAlpha_10ms.png')
+plt.close()
+
+# Plot Lift vs velocity for trim alpha = 5 degrees
+plt.figure(figsize=(10, 6))
+plt.plot(velocity, lift_arr[20], marker='o', linestyle='-', color='b')
+plt.plot(velocity, [W_est]*len(velocity), marker='o', linestyle='-', color='r', label='Weight Estimate')
+plt.title('Lift vs Velocity for Trim Alpha = 5 degrees')
+plt.xlabel('Velocity (m/s)')
+plt.ylabel('Lift (N)')
+plt.grid(True)
+plt.legend()
+plt.savefig('plots/Lift_vs_Velocity_5deg.png')
+plt.close()
+
+# Plot Drag vs velocity for trim alpha = 5 degrees
+plt.figure(figsize=(10, 6))
+plt.plot(velocity, drag_arr[20], marker='o', linestyle='-', color='b')
+plt.title('Drag vs Velocity for Trim Alpha = 5 degrees')
+plt.xlabel('Velocity (m/s)')
+plt.ylabel('Drag (N)')
+plt.grid(True)
+plt.savefig('plots/Drag_vs_Velocity_5deg.png')
 plt.close()
