@@ -27,6 +27,31 @@ alpha = np.array(data['Alpha'])
 
 ## Calculations 
 
+## Calculate the center of gravity of the aircraft
+
+# Define points of mass
+# Treat the "fuselage" tubes as massless
+
+m_prop = 47 + 24 # mass of motor and mount, grams
+x_prop = 0
+
+m_wing = 18 + 16*4 + 31 # mass of servos and wing pla, grams
+x_wing = np.linspace(0.05, 0.25, 100) # distance from propeller to wing, meters
+
+m_tail = 18 + 16*2 + 31# mass of servos and tail pla, grams
+x_tail = np.linspace(0.75, 1.5, 100) # distance from propeller to tail, meters
+
+x_cm = np.zeros((len(x_wing), len(x_tail)))
+
+for i, xw in enumerate(x_wing):
+  for j, xt in enumerate(x_tail):
+    cm = (m_prop*x_prop + m_wing*x_wing[i] + m_tail*x_tail[j]) / (m_prop + m_wing + m_tail) # center of mass
+    x_cm[i, j] = cm
+
+m_total = m_prop + m_wing + m_tail
+
+W_min = (m_total/1000) * 9.81 # minimum weight of the aircraft (N)
+
 #######################################################################################################
 ################################# Main Wing Body Calculations #########################################
 #######################################################################################################
@@ -116,17 +141,61 @@ L_D_t_arr = np.array(L_D_t_arr)
 
 # lw ==> distance from cg to wing aerodynamic center
 # lt ==> distance from cg to tail aerodynamic center
-lw = np.arange(0.05, 0.3,48)  #  2in to 1ft => UP FOR VARIATION
-lt = np.arange(0.3, 1.22, 48)  # 1ft to 4ft => UP FOR VARIATION
-i_t = 0  # Incidence angle of the tail (degrees) => UP FOR VARIATION
+lw = np.zeros((len(x_wing), len(x_tail)))
+lt = np.zeros((len(x_wing), len(x_tail)))
+
+for i in range(len(x_wing)):
+  xw = x_wing[i]
+  for j in range(len(x_tail)):
+    ltval = x_tail[j] - x_cm[i,j] - ((c/4)*.0254) # distance from cg to tail aerodynamic center (meters)
+    lt[i,j] = ltval
+
+    if xw > x_cm[i,j]:
+      lwval = xw - x_cm[i,j] + ((c/4)*.0254)
+    elif xw < x_cm[i,j]:
+      lwval = x_cm[i,j] - xw - ((c/4)*.0254)
+    else:
+      lwval = 0
+    lw[i,j] = lwval
+
 trim_alpha_w = 5  # Trim angle of attack for the wing (degrees)
-trim_alpha_t = 5 - i_t  # Trim angle of attack for the tail (degrees)
 
 # Calculations
 
-# for each lw, lt, calculate the i_t required for stability, at 20 m/s
+## Physical restraint: i_t = 0 - can't mount precise enough
+# so find l_w and l_t that give the stability when i_t is close to zero
 
+# Loop over lw and lt to calculate the stability at 10 m/s
 
+M = np.zeros((len(x_wing), len(x_tail)))
+
+for i in range(len(x_wing)):
+  for j in range(len(x_tail)):
+    lwval = lw[i,j]
+    ltval = lt[i,j]
+    # Calculate the moment about the center of gravity
+
+    if x_wing[i] > x_cm[i,j]:
+      M_w = lwval * lift_w_arr[np.where(trim_alpha == trim_alpha_w)[0][0], np.where(velocity == 10)[0][0]] * -1
+    elif x_wing[i] < x_cm[i,j]:
+      M_w = lwval * lift_w_arr[np.where(trim_alpha == trim_alpha_w)[0][0], np.where(velocity == 10)[0][0]]
+    else:
+      M_w = 0; 
+
+    M_t = ltval * lift_t_arr[np.where(trim_alpha == trim_alpha_w)[0][0], np.where(velocity == 10)[0][0]] * -1
+
+    # Append the moment to the main list
+    M[i,j] = M_w + M_t
+
+# Find the lw and lt values that give the stability when i_t is close to zero
+for i, momentarr in enumerate(M):
+  wingpos = x_wing[i]
+  for j, moment in enumerate(momentarr):
+    tailpos = x_tail[j]
+    if -0.0001 < moment < 0.0001:
+      print(f"xw: {wingpos}, xt: {tailpos}, M: {moment}")
+    
+    
 #######################################################################################################
 ########################################## Plotting Data ##############################################
 #######################################################################################################
@@ -170,7 +239,7 @@ plt.close()
 # Plot lift_w vs velocity for trim alpha = 5 degrees
 plt.figure(figsize=(10, 6))
 plt.plot(velocity, lift_w_arr[np.where(trim_alpha == 5)[0][0]], marker='o', linestyle='-', color='b')
-plt.plot(velocity, [W_est]*len(velocity), marker='o', linestyle='-', color='r', label='Weight Estimate')
+plt.plot(velocity, [W_min]*len(velocity), marker='o', linestyle='-', color='r', label='Weight Estimate')
 plt.title('lift_w vs Velocity for Trim Alpha = 5 degrees')
 plt.xlabel('Velocity (m/s)')
 plt.ylabel('lift_w (N)')
@@ -221,3 +290,20 @@ plt.grid(True)
 plt.savefig('plots/drag_t_vs_Velocity_5deg.png')
 plt.close()
 
+###### STABILITY DATA ######
+
+# Plot M vs x_wing and x_tail for 10m/s as a heatmap
+plt.figure(figsize=(10, 6))
+plt.imshow(M, cmap='coolwarm', interpolation='nearest')
+plt.colorbar()
+locsx, labelsx = plt.xticks()
+print(labelsx)
+locsy, labelsy = plt.yticks()
+plt.yticks(locsx, [0, round(x_tail[0], 2), round(x_tail[19], 2), round(x_tail[39], 2), round(x_tail[59], 2), round(x_tail[79], 2), round(x_tail[99], 2)])
+plt.xticks(locsy, [0, round(x_wing[0], 2), round(x_wing[19], 2), round(x_wing[39], 2), round(x_wing[59], 2), round(x_wing[79], 2), round(x_wing[99], 2)])
+plt.title('Moment (M) vs x_wing and x_tail for 10 m/s')
+plt.xlabel('x_wing')
+plt.ylabel('x_tao;')
+plt.grid(True)
+plt.savefig('plots/M_vs_x_wing_x_tail_10ms.png')
+plt.close()
