@@ -303,7 +303,7 @@ plt.yticks(locsx, [0, round(x_tail[0], 2), round(x_tail[19], 2), round(x_tail[39
 plt.xticks(locsy, [0, round(x_wing[0], 2), round(x_wing[19], 2), round(x_wing[39], 2), round(x_wing[59], 2), round(x_wing[79], 2), round(x_wing[99], 2)])
 plt.title('Moment (M) vs x_wing and x_tail for 10 m/s')
 plt.xlabel('x_wing')
-plt.ylabel('x_tao;')
+plt.ylabel('x_tail')
 plt.grid(True)
 plt.savefig('plots/M_vs_x_wing_x_tail_10ms.png')
 plt.close()
